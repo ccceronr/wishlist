@@ -2,7 +2,7 @@ import NextAuth from "next-auth";
 import { authConfig } from "@/auth.config";
 import { NextResponse } from "next/server";
 
-const PUBLIC_ROUTES = new Set(["/", "/login", "/register"]);
+const PUBLIC_ROUTES = new Set(["/", "/login", "/register", "/forgot-password", "/reset-password"]);
 const PUBLIC_PATTERNS = [/^\/u\//];
 
 function isPublicRoute(pathname: string) {
@@ -25,9 +25,7 @@ export default auth((req) => {
   // Redirect authenticated users away from auth pages and landing to dashboard
   if (
     isAuthenticated &&
-    (nextUrl.pathname === "/" ||
-      nextUrl.pathname === "/login" ||
-      nextUrl.pathname === "/register")
+    (nextUrl.pathname === "/login" || nextUrl.pathname === "/register")
   ) {
     return NextResponse.redirect(new URL("/dashboard", nextUrl));
   }

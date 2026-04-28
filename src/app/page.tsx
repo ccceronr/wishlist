@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { Star, Share2, CheckCircle2, Tag, Image, Sparkles } from "lucide-react";
 
 const features = [
@@ -49,6 +50,7 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <span className="text-xl font-bold tracking-tight">✨ Wishlist</span>
           <div className="flex items-center gap-2">
+            <ThemeToggle />
             <Link
               href="/login"
               className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}

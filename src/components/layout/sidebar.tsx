@@ -117,7 +117,7 @@ export function Sidebar({ onClose }: Props) {
       <Button
         variant="ghost"
         className="w-full justify-start text-muted-foreground hover:text-destructive"
-        onClick={() => signOut({ callbackUrl: "/login" })}
+        onClick={() => signOut({ callbackUrl: "/" })}
       >
         <LogOut className="w-4 h-4 mr-2" />
         Cerrar sesión

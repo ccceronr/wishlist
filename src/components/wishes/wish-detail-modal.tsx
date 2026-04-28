@@ -18,9 +18,10 @@ import type { Wish } from "@/types/wish";
 type Props = {
   wish: Wish | null;
   onClose: () => void;
+  readonly?: boolean;
 };
 
-export function WishDetailModal({ wish, onClose }: Props) {
+export function WishDetailModal({ wish, onClose, readonly = false }: Props) {
   const { updateWish, removeWish } = useWishStore();
   const [editOpen, setEditOpen] = useState(false);
   const [loading, setLoading] = useState<"priority" | "fulfill" | "delete" | null>(null);
@@ -127,7 +128,7 @@ export function WishDetailModal({ wish, onClose }: Props) {
           <Separator />
 
           {/* Actions */}
-          <div className="flex flex-wrap gap-2">
+          {!readonly && <div className="flex flex-wrap gap-2">
             <Button variant="outline" size="sm" onClick={() => setEditOpen(true)}>
               <Pencil className="w-4 h-4 mr-1.5" /> Editar
             </Button>
@@ -160,7 +161,7 @@ export function WishDetailModal({ wish, onClose }: Props) {
                 <><Trash2 className="w-4 h-4 mr-1.5" /> Eliminar</>
               )}
             </Button>
-          </div>
+          </div>}
         </DialogContent>
       </Dialog>
 

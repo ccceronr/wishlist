@@ -5,10 +5,12 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useWishStore } from "@/stores/wish-store";
+import type { Tag } from "@/types/wish";
 
 export type DateRange = "all" | "week" | "month" | "3months";
 
 type Props = {
+  tags?: Tag[];
   search: string;
   onSearchChange: (v: string) => void;
   selectedTagIds: string[];
@@ -22,13 +24,15 @@ type Props = {
 };
 
 export function FilterBar({
+  tags: tagsProp,
   search, onSearchChange,
   selectedTagIds, onTagToggle,
   priorityOnly, onPriorityToggle,
   dateRange, onDateRangeChange,
   onClear, hasFilters,
 }: Props) {
-  const { tags } = useWishStore();
+  const { tags: storeTags } = useWishStore();
+  const tags = tagsProp ?? storeTags;
 
   return (
     <div className="space-y-3">
