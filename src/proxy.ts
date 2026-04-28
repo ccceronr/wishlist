@@ -1,4 +1,5 @@
-import { auth } from "@/auth";
+import NextAuth from "next-auth";
+import { authConfig } from "@/auth.config";
 import { NextResponse } from "next/server";
 
 const PUBLIC_ROUTES = new Set(["/login", "/register"]);
@@ -9,6 +10,8 @@ function isPublicRoute(pathname: string) {
   return PUBLIC_PATTERNS.some((pattern) => pattern.test(pathname));
 }
 
+const { auth } = NextAuth(authConfig);
+
 export default auth((req) => {
   const { nextUrl } = req;
   const isAuthenticated = !!req.auth;
@@ -18,7 +21,10 @@ export default auth((req) => {
     return NextResponse.redirect(new URL("/login", nextUrl));
   }
 
-  if (isAuthenticated && (nextUrl.pathname === "/login" || nextUrl.pathname === "/register")) {
+  if (
+    isAuthenticated &&
+    (nextUrl.pathname === "/login" || nextUrl.pathname === "/register")
+  ) {
     return NextResponse.redirect(new URL("/", nextUrl));
   }
 
