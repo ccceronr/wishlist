@@ -2,7 +2,7 @@
 
 import { useTheme } from "next-themes";
 import { signOut, useSession } from "next-auth/react";
-import { Moon, Sun, LogOut, Copy, Check, ExternalLink } from "lucide-react";
+import { Moon, Sun, LogOut, Copy, Check, ExternalLink, X } from "lucide-react";
 import { useState } from "react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -13,7 +13,11 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-export function Sidebar() {
+type Props = {
+  onClose?: () => void;
+};
+
+export function Sidebar({ onClose }: Props) {
   const { data: session } = useSession();
   const { theme, setTheme } = useTheme();
   const [copied, setCopied] = useState(false);
@@ -30,10 +34,15 @@ export function Sidebar() {
   };
 
   return (
-    <aside className="w-60 h-screen sticky top-0 flex flex-col border-r bg-card px-4 py-6 shrink-0">
+    <aside className="w-60 h-screen flex flex-col border-r bg-card px-4 py-6 shrink-0">
       {/* Logo */}
-      <div className="mb-6">
+      <div className="mb-6 flex items-center justify-between">
         <h1 className="text-xl font-bold tracking-tight">✨ Wishlist</h1>
+        {onClose && (
+          <Button variant="ghost" size="icon" onClick={onClose} className="-mr-2">
+            <X className="w-4 h-4" />
+          </Button>
+        )}
       </div>
 
       <Separator />
@@ -57,32 +66,24 @@ export function Sidebar() {
         <div className="flex items-center gap-1">
           <p className="text-xs truncate flex-1 font-mono">/u/{nickname}</p>
           <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6"
-                onClick={copyPublicUrl}
-              >
-                {copied ? (
-                  <Check className="w-3 h-3 text-green-500" />
-                ) : (
-                  <Copy className="w-3 h-3" />
-                )}
-              </Button>
+            <TooltipTrigger
+              className="inline-flex h-6 w-6 items-center justify-center rounded hover:bg-muted"
+              onClick={copyPublicUrl}
+            >
+              {copied ? (
+                <Check className="w-3 h-3 text-green-500" />
+              ) : (
+                <Copy className="w-3 h-3" />
+              )}
             </TooltipTrigger>
             <TooltipContent>Copiar enlace</TooltipContent>
           </Tooltip>
           <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6"
-                onClick={() => window.open(`/u/${nickname}`, "_blank")}
-              >
-                <ExternalLink className="w-3 h-3" />
-              </Button>
+            <TooltipTrigger
+              className="inline-flex h-6 w-6 items-center justify-center rounded hover:bg-muted"
+              onClick={() => window.open(`/u/${nickname}`, "_blank")}
+            >
+              <ExternalLink className="w-3 h-3" />
             </TooltipTrigger>
             <TooltipContent>Abrir</TooltipContent>
           </Tooltip>
