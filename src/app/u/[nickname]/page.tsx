@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { Logo } from "@/components/logo";
 import { FilterBar } from "@/components/wishes/filter-bar";
 import { WishCard } from "@/components/wishes/wish-card";
 import { WishDetailModal } from "@/components/wishes/wish-detail-modal";
@@ -87,11 +88,8 @@ export default function PublicWishlistPage() {
       {/* Header */}
       <header className="sticky top-0 z-10 border-b bg-background/80 backdrop-blur-sm">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
-          <Link
-            href="/"
-            className="text-sm font-bold tracking-tight text-muted-foreground hover:text-foreground transition-colors"
-          >
-            ✨ Wishlist
+          <Link href="/" className="hover:opacity-80 transition-opacity">
+            <Logo size="md" />
           </Link>
           <div className="flex items-center gap-1">
             {session && (
@@ -100,15 +98,15 @@ export default function PublicWishlistPage() {
                   href="/dashboard"
                   className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}
                 >
-                  <LayoutDashboard className="w-4 h-4 mr-1.5" />
-                  Mi dashboard
+                  <LayoutDashboard className="w-4 h-4 sm:mr-1.5" />
+                  <span className="hidden sm:inline">Mi dashboard</span>
                 </Link>
                 <button
                   onClick={() => signOut({ callbackUrl: "/" })}
                   className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "text-muted-foreground")}
                 >
-                  <LogOut className="w-4 h-4 mr-1.5" />
-                  Cerrar sesión
+                  <LogOut className="w-4 h-4 sm:mr-1.5" />
+                  <span className="hidden sm:inline">Cerrar sesión</span>
                 </button>
               </>
             )}

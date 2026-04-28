@@ -18,6 +18,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Logo } from "@/components/logo";
 
 const registerSchema = z
   .object({
@@ -83,11 +84,18 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle className="text-2xl">Crear cuenta</CardTitle>
-          <CardDescription>Crea tu wishlist personal</CardDescription>
+    <div className="min-h-screen flex items-center justify-center bg-background p-4 relative overflow-hidden">
+      <div className="pointer-events-none absolute -top-32 -right-32 w-96 h-96 rounded-full bg-primary/10 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-32 -left-32 w-96 h-96 rounded-full bg-accent/10 blur-3xl" />
+
+      <div className="relative w-full max-w-md">
+        <div className="text-center mb-6">
+          <Logo size="xl" className="text-2xl" />
+        </div>
+      <Card className="w-full shadow-xl shadow-black/5 border-border/60">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-2xl font-bold">Crear cuenta</CardTitle>
+          <CardDescription>Tu lista de deseos personal, gratis</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -186,6 +194,7 @@ export default function RegisterPage() {
           </p>
         </CardFooter>
       </Card>
+      </div>
     </div>
   );
 }

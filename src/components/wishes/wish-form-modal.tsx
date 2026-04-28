@@ -141,53 +141,72 @@ export function WishFormModal({ open, onOpenChange, wish }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-lg max-h-[90vh] overflow-hidden">
-        <DialogHeader>
-          <DialogTitle>{isEditing ? "Editar deseo" : "Nuevo deseo"}</DialogTitle>
-        </DialogHeader>
+      <DialogContent className="max-w-[calc(100%-1rem)] sm:max-w-2xl max-h-[92vh] overflow-hidden p-0 gap-0">
+        {/* Gradient header */}
+        <div className="px-6 pt-6 pb-4 border-b bg-gradient-to-r from-primary/5 via-background to-accent/5">
+          <DialogHeader>
+            <DialogTitle className="text-xl">
+              {isEditing ? "Editar deseo" : "✨ Nuevo deseo"}
+            </DialogTitle>
+          </DialogHeader>
+        </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 min-h-0">
-          <div className="flex-1 overflow-y-auto pr-2 space-y-4 py-1">
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col min-h-0 overflow-hidden">
+          <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5">
+
+            {/* Título */}
             <div className="space-y-1.5">
-              <Label htmlFor="title">Título *</Label>
-              <Input id="title" placeholder="¿Qué deseas?" {...register("title")} />
+              <Label htmlFor="title" className="font-semibold">Título *</Label>
+              <Input id="title" placeholder="¿Qué deseas?" className="h-10" {...register("title")} />
               {errors.title && <p className="text-xs text-destructive">{errors.title.message}</p>}
             </div>
 
-            <div className="space-y-1.5">
-              <Label htmlFor="description">Descripción</Label>
-              <Textarea id="description" placeholder="Detalles del deseo..." rows={3} {...register("description")} />
-            </div>
-
-            <div className="space-y-1.5">
-              <Label htmlFor="price">Precio estimado</Label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">$</span>
-                <Input id="price" type="number" min="0" step="0.01" placeholder="0.00" className="pl-7" {...register("price")} />
+            {/* Descripción + Precio + Prioridad en grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <Label htmlFor="description" className="font-semibold">Descripción</Label>
+                <Textarea id="description" placeholder="Detalles, talla, color..." rows={4} className="resize-none" {...register("description")} />
               </div>
-            </div>
 
-            <div className="flex items-center gap-2">
-              <input type="checkbox" id="isPriority" className="w-4 h-4 accent-primary" {...register("isPriority")} />
-              <Label htmlFor="isPriority" className="cursor-pointer">Marcar como prioritario</Label>
+              <div className="space-y-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="price" className="font-semibold">Precio estimado</Label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-medium">$</span>
+                    <Input id="price" type="number" min="0" step="0.01" placeholder="0.00" className="pl-7 h-10" {...register("price")} />
+                  </div>
+                </div>
+
+                <label htmlFor="isPriority" className="flex items-center gap-3 p-3 rounded-xl border border-border/80 bg-muted/30 cursor-pointer hover:bg-muted/60 transition-colors">
+                  <input type="checkbox" id="isPriority" className="w-4 h-4 accent-primary" {...register("isPriority")} />
+                  <div>
+                    <p className="text-sm font-semibold">⭐ Prioritario</p>
+                    <p className="text-xs text-muted-foreground">Aparece primero en tu lista</p>
+                  </div>
+                </label>
+              </div>
             </div>
 
             <Separator />
 
-            <div className="space-y-1.5">
-              <Label>URLs <span className="text-muted-foreground text-xs">(máx 3)</span></Label>
+            {/* URLs */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label className="font-semibold">URLs</Label>
+                <span className="text-xs text-muted-foreground">{urlFields.length}/3</span>
+              </div>
               <div className="space-y-2">
                 {urlFields.map((field, index) => (
                   <div key={field.id} className="flex gap-2">
-                    <Input placeholder="https://..." {...register(`urls.${index}.value`)} />
-                    <Button type="button" variant="ghost" size="icon" onClick={() => removeUrl(index)}>
+                    <Input placeholder="https://tienda.com/producto..." className="h-9" {...register(`urls.${index}.value`)} />
+                    <Button type="button" variant="ghost" size="icon" onClick={() => removeUrl(index)} className="text-muted-foreground hover:text-destructive shrink-0">
                       <X className="w-4 h-4" />
                     </Button>
                   </div>
                 ))}
                 {urlFields.length < 3 && (
-                  <Button type="button" variant="outline" size="sm" onClick={() => appendUrl({ value: "" })}>
-                    <Plus className="w-4 h-4 mr-1" /> Agregar URL
+                  <Button type="button" variant="outline" size="sm" onClick={() => appendUrl({ value: "" })} className="w-full border-dashed">
+                    <Plus className="w-4 h-4 mr-1.5" /> Agregar URL
                   </Button>
                 )}
               </div>
@@ -195,28 +214,35 @@ export function WishFormModal({ open, onOpenChange, wish }: Props) {
 
             <Separator />
 
-            <div className="space-y-2">
-              <Label>Etiquetas <span className="text-muted-foreground text-xs">({selectedTagIds.length}/4)</span></Label>
-              <div className="flex flex-wrap gap-1.5">
-                {tags.map((tag) => (
-                  <Badge
-                    key={tag.id}
-                    variant={selectedTagIds.includes(tag.id) ? "default" : "outline"}
-                    className="cursor-pointer select-none"
-                    onClick={() => toggleTag(tag.id)}
-                  >
-                    {tag.name}
-                  </Badge>
-                ))}
+            {/* Etiquetas */}
+            <div className="space-y-2.5">
+              <div className="flex items-center justify-between">
+                <Label className="font-semibold">Etiquetas</Label>
+                <span className="text-xs text-muted-foreground">{selectedTagIds.length}/4</span>
               </div>
+              {tags.length > 0 && (
+                <div className="flex flex-wrap gap-1.5">
+                  {tags.map((tag) => (
+                    <Badge
+                      key={tag.id}
+                      variant={selectedTagIds.includes(tag.id) ? "default" : "outline"}
+                      className="cursor-pointer select-none transition-all px-3 py-1 text-xs"
+                      onClick={() => toggleTag(tag.id)}
+                    >
+                      {tag.name}
+                    </Badge>
+                  ))}
+                </div>
+              )}
               <div className="flex gap-2">
                 <Input
                   placeholder="Nueva etiqueta..."
                   value={newTagName}
                   onChange={(e) => setNewTagName(e.target.value)}
                   onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); createTag(); } }}
+                  className="h-9"
                 />
-                <Button type="button" variant="outline" size="sm" onClick={createTag} disabled={creatingTag || !newTagName.trim()}>
+                <Button type="button" variant="outline" size="sm" onClick={createTag} disabled={creatingTag || !newTagName.trim()} className="shrink-0">
                   {creatingTag ? <Loader2 className="w-4 h-4 animate-spin" /> : "Crear"}
                 </Button>
               </div>
@@ -224,17 +250,25 @@ export function WishFormModal({ open, onOpenChange, wish }: Props) {
 
             <Separator />
 
-            <div className="space-y-1.5">
-              <Label>Imágenes <span className="text-muted-foreground text-xs">(máx 3)</span></Label>
+            {/* Imágenes */}
+            <div className="space-y-2 pb-1">
+              <div className="flex items-center justify-between">
+                <Label className="font-semibold">Imágenes</Label>
+                <span className="text-xs text-muted-foreground">{images.length}/3</span>
+              </div>
               <ImageUpload value={images} onChange={(urls) => setValue("images", urls)} />
             </div>
           </div>
 
-          {error && <p className="text-sm text-destructive mt-2">{error}</p>}
+          {error && (
+            <div className="mx-6 mb-2 px-3 py-2 rounded-lg bg-destructive/10 border border-destructive/20">
+              <p className="text-sm text-destructive">{error}</p>
+            </div>
+          )}
 
-          <DialogFooter className="mt-4">
+          <DialogFooter className="-mx-0 -mb-0 rounded-b-2xl px-6 py-4">
             <Button type="button" variant="outline" onClick={handleClose}>Cancelar</Button>
-            <Button type="submit" disabled={submitting}>
+            <Button type="submit" disabled={submitting} className="min-w-36">
               {submitting
                 ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Guardando...</>
                 : isEditing ? "Guardar cambios" : "Guardar deseo"}

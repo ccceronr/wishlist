@@ -2,6 +2,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { Logo } from "@/components/logo";
 import { Star, Share2, CheckCircle2, Tag, Image, Sparkles } from "lucide-react";
 
 const features = [
@@ -14,15 +15,15 @@ const features = [
   },
   {
     icon: Share2,
-    color: "text-blue-500",
-    bg: "bg-blue-500/10",
+    color: "text-rose-500",
+    bg: "bg-rose-500/10",
     title: "Comparte tu wishlist",
     desc: "Tu cuenta tiene una URL pública única. Compártela con amigos y familia para que sepan exactamente qué regalarte.",
   },
   {
     icon: Tag,
-    color: "text-violet-500",
-    bg: "bg-violet-500/10",
+    color: "text-fuchsia-500",
+    bg: "bg-fuchsia-500/10",
     title: "Organiza con etiquetas",
     desc: "Categoriza tus deseos con etiquetas personalizadas y filtra tu lista para encontrar lo que buscas en segundos.",
   },
@@ -35,8 +36,8 @@ const features = [
   },
   {
     icon: CheckCircle2,
-    color: "text-green-500",
-    bg: "bg-green-500/10",
+    color: "text-purple-400",
+    bg: "bg-purple-400/10",
     title: "Celebra lo cumplido",
     desc: "Cuando lo consigas, márcalo como cumplido. Tu historial de logros siempre ahí para recordarte lo bien que te va.",
   },
@@ -48,7 +49,7 @@ export default function LandingPage() {
       {/* Navbar */}
       <header className="sticky top-0 z-10 border-b bg-background/80 backdrop-blur-sm">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          <span className="text-xl font-bold tracking-tight">✨ Wishlist</span>
+          <Logo size="lg" />
           <div className="flex items-center gap-2">
             <ThemeToggle />
             <Link
@@ -70,16 +71,17 @@ export default function LandingPage() {
       {/* Hero */}
       <section className="relative overflow-hidden flex flex-col items-center justify-center text-center px-4 py-24 sm:py-36">
         {/* Background blobs */}
-        <div className="pointer-events-none absolute -top-40 -left-40 w-[600px] h-[600px] rounded-full bg-violet-400/20 blur-3xl dark:bg-violet-600/10" />
-        <div className="pointer-events-none absolute -bottom-40 -right-40 w-[500px] h-[500px] rounded-full bg-pink-400/20 blur-3xl dark:bg-pink-600/10" />
+        <div className="pointer-events-none absolute -top-40 -left-40 w-[600px] h-[600px] rounded-full bg-rose-300/30 blur-3xl dark:bg-rose-500/15" />
+        <div className="pointer-events-none absolute -bottom-40 -right-40 w-[500px] h-[500px] rounded-full bg-purple-300/30 blur-3xl dark:bg-fuchsia-500/15" />
+        <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] rounded-full bg-pink-200/20 blur-3xl dark:bg-pink-500/10" />
 
         <div className="relative z-10 flex flex-col items-center">
           <div className="inline-flex items-center gap-2 rounded-full border bg-background/80 px-4 py-1.5 text-sm text-muted-foreground mb-8 shadow-sm backdrop-blur-sm">
-            <Sparkles className="w-3.5 h-3.5 text-violet-500" />
+            <Sparkles className="w-3.5 h-3.5 text-rose-500" />
             Tu lista de deseos personal
           </div>
 
-          <h1 className="text-4xl sm:text-6xl md:text-7xl font-bold tracking-tight mb-6 max-w-3xl leading-[1.1] bg-gradient-to-br from-violet-600 via-purple-600 to-pink-500 bg-clip-text text-transparent">
+          <h1 className="text-4xl sm:text-6xl md:text-7xl font-bold tracking-tight mb-6 max-w-3xl leading-[1.1] bg-gradient-to-br from-rose-500 via-pink-500 to-fuchsia-500 bg-clip-text text-transparent">
             Todo lo que quieres,<br className="hidden sm:block" /> en un solo lugar
           </h1>
 
@@ -93,7 +95,7 @@ export default function LandingPage() {
               href="/register"
               className={cn(
                 buttonVariants({ size: "lg" }),
-                "px-8 text-base h-11 shadow-lg shadow-violet-500/20"
+                "px-8 text-base h-11 shadow-lg shadow-rose-500/25"
               )}
             >
               Crear mi wishlist gratis
@@ -143,7 +145,7 @@ export default function LandingPage() {
             href="/register"
             className={cn(
               buttonVariants({ size: "lg" }),
-              "px-10 text-base h-11 shadow-lg shadow-violet-500/20"
+              "px-10 text-base h-11 shadow-lg shadow-rose-500/25"
             )}
           >
             Crear mi wishlist ✨
@@ -152,8 +154,8 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t py-6 text-center text-xs text-muted-foreground">
-        ✨ Wishlist — Tu lista de deseos personal
+      <footer className="border-t py-6 flex items-center justify-center gap-2 text-xs text-muted-foreground">
+        <Logo size="sm" /> <span>— Tu lista de deseos personal</span>
       </footer>
     </div>
   );

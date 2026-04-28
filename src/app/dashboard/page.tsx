@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Menu, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sidebar } from "@/components/layout/sidebar";
+import { Logo } from "@/components/logo";
 import { WishGrid } from "@/components/wishes/wish-grid";
 import { WishFormModal } from "@/components/wishes/wish-form-modal";
 import { useWishStore } from "@/stores/wish-store";
@@ -50,7 +51,7 @@ export default function DashboardPage() {
           <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(true)}>
             <Menu className="w-5 h-5" />
           </Button>
-          <span className="font-bold text-base">✨ Wishlist</span>
+          <Logo size="md" />
           <Button size="sm" onClick={() => setModalOpen(true)}>
             <Plus className="w-4 h-4" />
           </Button>
