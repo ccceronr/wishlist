@@ -8,14 +8,27 @@ datasource db {
 }
 
 model User {
-  id            String                @id @default(cuid())
-  email         String                @unique
-  nickname      String                @unique
-  passwordHash  String
-  createdAt     DateTime              @default(now())
-  wishes        Wish[]
-  tags          Tag[]
-  resetTokens   PasswordResetToken[]
+  id              String                @id @default(cuid())
+  email           String                @unique
+  nickname        String                @unique
+  passwordHash    String
+  createdAt       DateTime              @default(now())
+  wishes          Wish[]
+  tags            Tag[]
+  resetTokens     PasswordResetToken[]
+  pinnedWishlists PinnedWishlist[]      @relation("UserPins")
+  pinnedByUsers   PinnedWishlist[]      @relation("PinnedByUsers")
+}
+
+model PinnedWishlist {
+  id            String   @id @default(cuid())
+  userId        String
+  pinnedUserId  String
+  createdAt     DateTime @default(now())
+  user          User     @relation("UserPins", fields: [userId], references: [id], onDelete: Cascade)
+  pinnedUser    User     @relation("PinnedByUsers", fields: [pinnedUserId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, pinnedUserId])
 }
 
 model PasswordResetToken {

@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Eye, EyeOff } from "lucide-react";
 import {
@@ -28,8 +28,10 @@ const loginSchema = z.object({
 
 type LoginForm = z.infer<typeof loginSchema>;
 
-export default function LoginPage() {
+function LoginPageInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const pinNickname = searchParams.get("pin");
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -54,7 +56,18 @@ export default function LoginPage() {
       return;
     }
 
-    router.push("/dashboard");
+    if (pinNickname) {
+      try {
+        await fetch("/api/pinned", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ nickname: pinNickname }),
+        });
+      } catch { /* ignore — user can pin manually later */ }
+      router.push(`/u/${pinNickname}`);
+    } else {
+      router.push("/dashboard");
+    }
     router.refresh();
   };
 
@@ -130,7 +143,10 @@ export default function LoginPage() {
         <CardFooter className="flex justify-center">
           <p className="text-sm text-muted-foreground">
             ¿No tienes cuenta?{" "}
-            <Link href="/register" className="text-primary hover:underline">
+            <Link
+              href={pinNickname ? `/register?pin=${encodeURIComponent(pinNickname)}` : "/register"}
+              className="text-primary hover:underline"
+            >
               Regístrate
             </Link>
           </p>
@@ -138,5 +154,13 @@ export default function LoginPage() {
       </Card>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginPageInner />
+    </Suspense>
   );
 }

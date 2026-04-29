@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Eye, EyeOff } from "lucide-react";
 import {
@@ -38,8 +38,10 @@ const registerSchema = z
 
 type RegisterForm = z.infer<typeof registerSchema>;
 
-export default function RegisterPage() {
+function RegisterPageInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const pinNickname = searchParams.get("pin");
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -80,7 +82,9 @@ export default function RegisterPage() {
       return;
     }
 
-    router.push("/login?registered=true");
+    const params = new URLSearchParams({ registered: "true" });
+    if (pinNickname) params.set("pin", pinNickname);
+    router.push(`/login?${params.toString()}`);
   };
 
   return (
@@ -188,7 +192,10 @@ export default function RegisterPage() {
         <CardFooter className="flex justify-center">
           <p className="text-sm text-muted-foreground">
             ¿Ya tienes cuenta?{" "}
-            <Link href="/login" className="text-primary hover:underline">
+            <Link
+              href={pinNickname ? `/login?pin=${encodeURIComponent(pinNickname)}` : "/login"}
+              className="text-primary hover:underline"
+            >
               Inicia sesión
             </Link>
           </p>
@@ -196,5 +203,13 @@ export default function RegisterPage() {
       </Card>
       </div>
     </div>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense>
+      <RegisterPageInner />
+    </Suspense>
   );
 }

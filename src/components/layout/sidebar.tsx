@@ -2,8 +2,9 @@
 
 import { useTheme } from "next-themes";
 import { signOut, useSession } from "next-auth/react";
-import { Moon, Sun, LogOut, Copy, Check, ExternalLink, X } from "lucide-react";
-import { useState } from "react";
+import { Moon, Sun, LogOut, Copy, Check, ExternalLink, X, Bookmark } from "lucide-react";
+import { useEffect, useState } from "react";
+import Link from "next/link";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/logo";
@@ -17,20 +18,38 @@ type Props = {
   onClose?: () => void;
 };
 
+type PinnedItem = { nickname: string };
+
 export function Sidebar({ onClose }: Props) {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const { theme, setTheme } = useTheme();
   const [copied, setCopied] = useState(false);
+  const [pinned, setPinned] = useState<PinnedItem[]>([]);
 
   const nickname = session?.user?.nickname ?? "";
   const email = session?.user?.email ?? "";
   const initials = nickname.slice(0, 2).toUpperCase();
   const publicUrl = `${typeof window !== "undefined" ? window.location.origin : ""}/u/${nickname}`;
 
+  useEffect(() => {
+    if (status !== "authenticated") return;
+    fetch("/api/pinned")
+      .then((r) => r.ok ? r.json() : [])
+      .then(setPinned)
+      .catch(() => {});
+  }, [status]);
+
   const copyPublicUrl = () => {
     navigator.clipboard.writeText(publicUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleUnpin = async (nick: string) => {
+    setPinned((prev) => prev.filter((p) => p.nickname !== nick));
+    try {
+      await fetch(`/api/pinned/${nick}`, { method: "DELETE" });
+    } catch { /* ignore */ }
   };
 
   return (
@@ -88,6 +107,43 @@ export function Sidebar({ onClose }: Props) {
             </Tooltip>
           </div>
         </div>
+
+        {/* Pinned wishlists */}
+        {pinned.length > 0 && (
+          <div className="space-y-2">
+            <div className="flex items-center gap-1.5 px-1">
+              <Bookmark className="w-3 h-3 text-muted-foreground" />
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Listas ancladas</p>
+            </div>
+            <ul className="space-y-0.5">
+              {pinned.map((p) => (
+                <li
+                  key={p.nickname}
+                  className="group flex items-center rounded-lg hover:bg-muted/60 transition-colors"
+                >
+                  <Link
+                    href={`/u/${p.nickname}`}
+                    className="flex-1 flex items-center gap-2 px-2 py-1.5 min-w-0"
+                  >
+                    <Avatar className="h-6 w-6 shrink-0">
+                      <AvatarFallback className="bg-accent text-accent-foreground text-[10px] font-bold">
+                        {p.nickname.slice(0, 2).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="text-sm truncate">@{p.nickname}</span>
+                  </Link>
+                  <button
+                    onClick={() => handleUnpin(p.nickname)}
+                    className="opacity-0 group-hover:opacity-100 mr-1 p-1 rounded hover:bg-destructive/10 hover:text-destructive transition-all shrink-0"
+                    aria-label={`Desanclar @${p.nickname}`}
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
 
       {/* Bottom actions */}

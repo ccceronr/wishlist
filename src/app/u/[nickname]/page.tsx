@@ -1,13 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
-import { LogOut, LayoutDashboard } from "lucide-react";
+import { LogOut, LayoutDashboard, BookmarkPlus, BookmarkCheck, Loader2 } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
-import { buttonVariants } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Logo } from "@/components/logo";
 import { FilterBar } from "@/components/wishes/filter-bar";
@@ -18,15 +18,21 @@ import type { DateRange } from "@/components/wishes/filter-bar";
 
 export default function PublicWishlistPage() {
   const { nickname } = useParams<{ nickname: string }>();
+  const router = useRouter();
+  const { data: session, status: sessionStatus } = useSession();
   const [wishes, setWishes] = useState<Wish[]>([]);
   const [notFound, setNotFound] = useState(false);
   const [loading, setLoading] = useState(true);
   const [selectedWish, setSelectedWish] = useState<Wish | null>(null);
+  const [isPinned, setIsPinned] = useState(false);
+  const [pinLoading, setPinLoading] = useState(false);
 
   const [search, setSearch] = useState("");
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
   const [priorityOnly, setPriorityOnly] = useState(false);
   const [dateRange, setDateRange] = useState<DateRange>("all");
+
+  const isOwnProfile = session?.user?.nickname === nickname;
 
   useEffect(() => {
     fetch(`/api/public/${nickname}`)
@@ -41,6 +47,40 @@ export default function PublicWishlistPage() {
       .catch(console.error)
       .finally(() => setLoading(false));
   }, [nickname]);
+
+  // Check if current user has this wishlist pinned
+  useEffect(() => {
+    if (sessionStatus !== "authenticated" || isOwnProfile) return;
+    fetch("/api/pinned")
+      .then((r) => r.ok ? r.json() : [])
+      .then((list: { nickname: string }[]) => {
+        setIsPinned(list.some((p) => p.nickname === nickname));
+      })
+      .catch(() => {});
+  }, [sessionStatus, isOwnProfile, nickname]);
+
+  const handlePinToggle = async () => {
+    if (sessionStatus !== "authenticated") {
+      router.push(`/login?pin=${encodeURIComponent(nickname)}`);
+      return;
+    }
+    setPinLoading(true);
+    try {
+      if (isPinned) {
+        await fetch(`/api/pinned/${nickname}`, { method: "DELETE" });
+        setIsPinned(false);
+      } else {
+        const res = await fetch("/api/pinned", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ nickname }),
+        });
+        if (res.ok) setIsPinned(true);
+      }
+    } finally {
+      setPinLoading(false);
+    }
+  };
 
   const availableTags: Tag[] = Array.from(
     new Map(
@@ -69,7 +109,6 @@ export default function PublicWishlistPage() {
     return true;
   });
 
-  const { data: session } = useSession();
   const initials = nickname?.slice(0, 2).toUpperCase() ?? "";
 
   if (notFound) {
@@ -126,13 +165,13 @@ export default function PublicWishlistPage() {
             </div>
           </div>
         ) : (
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 flex-wrap">
             <Avatar className="h-14 w-14 shrink-0">
               <AvatarFallback className="bg-primary text-primary-foreground font-semibold text-lg">
                 {initials}
               </AvatarFallback>
             </Avatar>
-            <div>
+            <div className="flex-1 min-w-0">
               <h1 className="text-xl font-bold">@{nickname}</h1>
               <p className="text-sm text-muted-foreground">
                 {wishes.length === 0
@@ -140,6 +179,23 @@ export default function PublicWishlistPage() {
                   : `${wishes.length} ${wishes.length === 1 ? "deseo" : "deseos"} en su wishlist`}
               </p>
             </div>
+            {!isOwnProfile && !notFound && (
+              <Button
+                variant={isPinned ? "outline" : "default"}
+                size="sm"
+                onClick={handlePinToggle}
+                disabled={pinLoading}
+                className="gap-1.5 shrink-0"
+              >
+                {pinLoading ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : isPinned ? (
+                  <><BookmarkCheck className="w-4 h-4 fill-current" /> Anclado</>
+                ) : (
+                  <><BookmarkPlus className="w-4 h-4" /> Anclar a mi perfil</>
+                )}
+              </Button>
+            )}
           </div>
         )}
 
