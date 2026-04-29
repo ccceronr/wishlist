@@ -3,7 +3,7 @@ import { authConfig } from "@/auth.config";
 import { NextResponse } from "next/server";
 
 const PUBLIC_ROUTES = new Set(["/", "/login", "/register", "/forgot-password", "/reset-password"]);
-const PUBLIC_PATTERNS = [/^\/u\//];
+const PUBLIC_PATTERNS = [/^\/u\//, /^\/api\/public\//];
 
 function isPublicRoute(pathname: string) {
   if (PUBLIC_ROUTES.has(pathname)) return true;
