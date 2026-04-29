@@ -5,6 +5,7 @@ import { Star, Pencil, CheckCircle, Trash2, ExternalLink, Loader2, X } from "luc
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -26,6 +27,7 @@ export function WishDetailModal({ wish, onClose, readonly = false }: Props) {
   const [editOpen, setEditOpen] = useState(false);
   const [loading, setLoading] = useState<"priority" | "fulfill" | "delete" | null>(null);
   const [expandedImage, setExpandedImage] = useState<string | null>(null);
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
 
   if (!wish) return null;
 
@@ -46,11 +48,10 @@ export function WishDetailModal({ wish, onClose, readonly = false }: Props) {
   };
 
   const handleDelete = async () => {
-    if (!confirm("¿Eliminar este deseo?")) return;
     setLoading("delete");
     try {
       const res = await fetch(`/api/wishes/${wish.id}`, { method: "DELETE" });
-      if (res.ok) { removeWish(wish.id); onClose(); }
+      if (res.ok) { removeWish(wish.id); setConfirmDeleteOpen(false); onClose(); }
     } finally { setLoading(null); }
   };
 
@@ -169,11 +170,9 @@ export function WishDetailModal({ wish, onClose, readonly = false }: Props) {
                     </Button>
                   )}
 
-                  <Button variant="ghost" size="sm" onClick={handleDelete} disabled={!!loading}
+                  <Button variant="ghost" size="sm" onClick={() => setConfirmDeleteOpen(true)} disabled={!!loading}
                     className="gap-1.5 text-destructive hover:bg-destructive/10 ml-auto">
-                    {loading === "delete" ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : (
-                      <><Trash2 className="w-3.5 h-3.5" /> Eliminar</>
-                    )}
+                    <Trash2 className="w-3.5 h-3.5" /> Eliminar
                   </Button>
                 </div>
               </>
@@ -207,6 +206,45 @@ export function WishDetailModal({ wish, onClose, readonly = false }: Props) {
       )}
 
       <WishFormModal open={editOpen} onOpenChange={setEditOpen} wish={wish} />
+
+      {/* Confirm delete dialog */}
+      <Dialog open={confirmDeleteOpen} onOpenChange={(open) => !open && loading !== "delete" && setConfirmDeleteOpen(false)}>
+        <DialogContent className="sm:max-w-sm">
+          <div className="flex items-start gap-3">
+            <div className="shrink-0 w-10 h-10 rounded-full bg-destructive/10 flex items-center justify-center">
+              <Trash2 className="w-5 h-5 text-destructive" />
+            </div>
+            <DialogHeader className="flex-1">
+              <DialogTitle>¿Eliminar este deseo?</DialogTitle>
+              <p className="text-sm text-muted-foreground mt-1">
+                Esta acción no se puede deshacer. <span className="font-medium text-foreground">&ldquo;{wish.title}&rdquo;</span> se eliminará permanentemente.
+              </p>
+            </DialogHeader>
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setConfirmDeleteOpen(false)}
+              disabled={loading === "delete"}
+            >
+              Cancelar
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+              disabled={loading === "delete"}
+              className="bg-destructive text-white hover:bg-destructive/90 gap-1.5"
+            >
+              {loading === "delete" ? (
+                <><Loader2 className="w-4 h-4 animate-spin" /> Eliminando...</>
+              ) : (
+                <><Trash2 className="w-4 h-4" /> Eliminar</>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
