@@ -1,36 +1,124 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ✨ Wishlist
 
-## Getting Started
+Tu lista de deseos personal y compartible. Guarda, organiza, prioriza y comparte todo lo que quieres en un solo lugar — con un diseño romántico en tonos pastel y modo oscuro.
 
-First, run the development server:
+## Funcionalidades
+
+- 🔐 **Autenticación completa** — Registro, login y recuperación de contraseña por email
+- 📝 **Gestión de deseos** — Título, descripción, precio, hasta 3 imágenes y 3 URLs por deseo
+- ⭐ **Sistema de prioridad** — Marca hasta 5 deseos como prioritarios para verlos primero
+- 🏷️ **Etiquetas personalizadas** — Crea y asigna hasta 4 etiquetas por deseo
+- 🔍 **Filtros avanzados** — Búsqueda por texto, etiquetas, prioridad y rango de fechas
+- 🌐 **Compartir públicamente** — URL única `/u/<nickname>` accesible sin registro
+- 🌗 **Modo claro y oscuro** — Paleta romántica con rosa, lavanda y plum
+- 📱 **Diseño responsive** — Optimizado para móvil y desktop
+- 🖼️ **Lightbox de imágenes** — Vista detallada con un click
+- ✅ **Marcar como cumplido** — Celebra los deseos que conseguiste
+
+## Stack
+
+- **Framework**: [Next.js 16](https://nextjs.org/) (App Router + Turbopack)
+- **UI**: [React 19](https://react.dev/), [Tailwind CSS v4](https://tailwindcss.com/), [shadcn/ui](https://ui.shadcn.com/) sobre [@base-ui/react](https://base-ui.com/)
+- **Base de datos**: PostgreSQL con [Prisma 7](https://www.prisma.io/)
+- **Autenticación**: [NextAuth v5](https://authjs.dev/)
+- **Formularios y validación**: [React Hook Form](https://react-hook-form.com/) + [Zod](https://zod.dev/)
+- **Estado global**: [Zustand](https://zustand-demo.pmnd.rs/)
+- **Imágenes**: [Cloudinary](https://cloudinary.com/)
+- **Email**: [Nodemailer](https://nodemailer.com/)
+- **Tipografía**: [Nunito](https://fonts.google.com/specimen/Nunito)
+
+## Setup local
+
+### Requisitos
+
+- Node.js 20+
+- PostgreSQL (local, [Neon](https://neon.tech), [Supabase](https://supabase.com), etc.)
+- Cuenta gratuita en [Cloudinary](https://cloudinary.com) (para subir imágenes)
+
+### Instalación
 
 ```bash
+# Clonar el repositorio
+git clone https://github.com/ccceronr/wishlist.git
+cd wishlist
+
+# Instalar dependencias
+npm install
+
+# Configurar variables de entorno (ver sección siguiente)
+cp .env.local.example .env.local
+
+# Aplicar schema y generar cliente Prisma
+npx prisma db push
+npx prisma generate
+
+# Sembrar etiquetas por defecto
+npx prisma db seed
+
+# Iniciar servidor de desarrollo
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abre [http://localhost:3000](http://localhost:3000) en tu navegador.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Variables de entorno
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Crea un archivo `.env.local` con:
 
-## Learn More
+```env
+# Base de datos PostgreSQL
+DATABASE_URL="postgresql://user:password@host:5432/dbname"
 
-To learn more about Next.js, take a look at the following resources:
+# NextAuth (genera con: openssl rand -base64 32)
+AUTH_SECRET="..."
+NEXTAUTH_SECRET="..."
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# Cloudinary
+NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME="..."
+NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET="..."
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# Email (opcional — si no se configura, los links de recuperación se imprimen en consola)
+EMAIL_USER="tu-correo@gmail.com"
+EMAIL_PASSWORD="contraseña-de-aplicación"
+EMAIL_FROM="Wishlist <tu-correo@gmail.com>"
+```
 
-## Deploy on Vercel
+## Scripts
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+| Comando | Descripción |
+|---------|-------------|
+| `npm run dev` | Servidor de desarrollo con Turbopack |
+| `npm run build` | Build de producción (regenera Prisma + Next build) |
+| `npm run start` | Servidor de producción |
+| `npm run lint` | Linter |
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Deploy en Vercel
+
+1. Conecta tu repositorio en [Vercel](https://vercel.com/)
+2. Configura las mismas variables de entorno definidas en tu `.env.local`
+3. El script de build (`prisma generate && next build`) genera el cliente Prisma automáticamente
+
+## Estructura del proyecto
+
+```
+src/
+├── app/                  # Rutas (App Router)
+│   ├── api/              # Endpoints REST
+│   ├── dashboard/        # Panel principal autenticado
+│   ├── u/[nickname]/     # Wishlist pública
+│   ├── login/
+│   ├── register/
+│   ├── forgot-password/
+│   └── reset-password/
+├── components/
+│   ├── ui/               # Componentes base (shadcn / base-ui)
+│   ├── wishes/           # Cards, modales y filtros de deseos
+│   └── layout/           # Sidebar y elementos compartidos
+├── lib/                  # Utilidades, validaciones, cliente Prisma
+├── stores/               # Stores de Zustand
+└── types/                # Tipos TypeScript
+```
+
+## Licencia
+
+MIT
