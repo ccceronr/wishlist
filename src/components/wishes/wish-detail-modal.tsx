@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Star, Pencil, CheckCircle, Trash2, ExternalLink, Loader2 } from "lucide-react";
+import { Star, Pencil, CheckCircle, Trash2, ExternalLink, Loader2, X } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -25,6 +25,7 @@ export function WishDetailModal({ wish, onClose, readonly = false }: Props) {
   const { updateWish, removeWish } = useWishStore();
   const [editOpen, setEditOpen] = useState(false);
   const [loading, setLoading] = useState<"priority" | "fulfill" | "delete" | null>(null);
+  const [expandedImage, setExpandedImage] = useState<string | null>(null);
 
   if (!wish) return null;
 
@@ -57,46 +58,41 @@ export function WishDetailModal({ wish, onClose, readonly = false }: Props) {
     <>
       <Dialog open={!!wish} onOpenChange={onClose}>
         <DialogContent className="max-w-[calc(100%-1rem)] sm:max-w-lg max-h-[90vh] overflow-hidden p-0 gap-0">
-          {/* Image hero or gradient header */}
-          {wish.images.length > 0 ? (
-            <div className="relative">
-              <div className="grid grid-cols-3 gap-1">
-                {wish.images.map((url, i) => (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    key={i}
-                    src={url}
-                    alt={`imagen ${i + 1}`}
-                    className={`w-full object-cover ${wish.images.length === 1 ? "col-span-3 h-52 rounded-t-2xl" : "h-32 first:rounded-tl-2xl last:rounded-tr-2xl"}`}
-                  />
-                ))}
-              </div>
-              {wish.isPriority && (
-                <div className="absolute top-3 left-3">
-                  <Badge className="bg-amber-500 text-white gap-1 shadow-md">
-                    <Star className="w-3 h-3 fill-white" /> Prioritario
-                  </Badge>
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="relative h-20 bg-gradient-to-r from-primary/10 via-background to-accent/10 border-b rounded-t-2xl">
-              {wish.isPriority && (
-                <div className="absolute top-3 left-6">
-                  <Badge className="bg-amber-500 text-white gap-1">
-                    <Star className="w-3 h-3 fill-white" /> Prioritario
-                  </Badge>
-                </div>
-              )}
-            </div>
-          )}
-
           <div className="overflow-y-auto">
-            <div className="px-6 pt-4 pb-2">
+            {/* Title + priority badge */}
+            <div className="px-6 pt-6 pb-3">
+              {wish.isPriority && (
+                <Badge className="mb-2 bg-rose-100 text-rose-700 hover:bg-rose-100 dark:bg-rose-950/40 dark:text-rose-300 gap-1 border-0 rounded-full px-2.5 py-0.5">
+                  <Star className="w-3 h-3 fill-rose-500 text-rose-500" /> Prioritario
+                </Badge>
+              )}
               <DialogHeader>
                 <DialogTitle className="text-xl leading-snug pr-6">{wish.title}</DialogTitle>
               </DialogHeader>
             </div>
+
+            {/* Images with padding, clickable */}
+            {wish.images.length > 0 && (
+              <div className="px-6 pb-3">
+                <div className={`grid gap-2 ${wish.images.length === 1 ? "grid-cols-1" : "grid-cols-3"}`}>
+                  {wish.images.map((url, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => setExpandedImage(url)}
+                      className="group relative overflow-hidden rounded-xl border border-border/40 hover:ring-2 hover:ring-primary/40 transition-all cursor-zoom-in"
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={url}
+                        alt={`imagen ${i + 1}`}
+                        className={`w-full object-cover ${wish.images.length === 1 ? "h-56" : "h-32"} group-hover:scale-105 transition-transform duration-300`}
+                      />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <div className="px-6 pb-4 space-y-4">
               {wish.price != null && (
@@ -156,10 +152,10 @@ export function WishDetailModal({ wish, onClose, readonly = false }: Props) {
                     size="sm"
                     onClick={handlePriority}
                     disabled={!!loading}
-                    className={`gap-1.5 ${wish.isPriority ? "text-amber-500 border-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950/30" : ""}`}
+                    className={`gap-1.5 ${wish.isPriority ? "text-rose-600 border-rose-200 hover:bg-rose-50 dark:text-rose-400 dark:border-rose-900/60 dark:hover:bg-rose-950/30" : ""}`}
                   >
                     {loading === "priority" ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : (
-                      <><Star className={`w-3.5 h-3.5 ${wish.isPriority ? "fill-amber-500" : ""}`} />
+                      <><Star className={`w-3.5 h-3.5 ${wish.isPriority ? "fill-rose-500 text-rose-500" : ""}`} />
                         {wish.isPriority ? "Quitar prioridad" : "Priorizar"}</>
                     )}
                   </Button>
@@ -185,6 +181,30 @@ export function WishDetailModal({ wish, onClose, readonly = false }: Props) {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Image lightbox */}
+      {expandedImage && (
+        <div
+          className="fixed inset-0 z-[60] bg-black/95 backdrop-blur-md flex items-center justify-center p-4 cursor-zoom-out animate-in fade-in-0 duration-150"
+          onClick={() => setExpandedImage(null)}
+        >
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); setExpandedImage(null); }}
+            className="absolute top-4 right-4 text-white p-2.5 rounded-full bg-white/10 hover:bg-white/20 transition-colors backdrop-blur-sm"
+            aria-label="Cerrar"
+          >
+            <X className="w-5 h-5" />
+          </button>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={expandedImage}
+            alt="vista detallada"
+            className="max-h-[90vh] max-w-[90vw] object-contain rounded-xl shadow-2xl cursor-default"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
 
       <WishFormModal open={editOpen} onOpenChange={setEditOpen} wish={wish} />
     </>

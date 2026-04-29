@@ -28,8 +28,8 @@ export function WishCard({ wish, onClick }: Props) {
       {/* Priority badge */}
       {wish.isPriority && (
         <div className="absolute top-2.5 left-2.5 z-10">
-          <Badge className="bg-amber-500 hover:bg-amber-500 text-white gap-1 px-2 py-0.5 text-xs shadow-sm">
-            <Star className="w-3 h-3 fill-white" /> Prioritario
+          <Badge className="bg-white/95 backdrop-blur-sm text-rose-600 hover:bg-white/95 dark:bg-rose-950/80 dark:text-rose-300 gap-1 px-2 py-0.5 text-xs shadow-sm border-0">
+            <Star className="w-3 h-3 fill-rose-500 text-rose-500" /> Prioritario
           </Badge>
         </div>
       )}
